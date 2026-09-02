@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="bn">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>MyBook — Bongaon Book Delivery</title>
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:system-ui,-apple-system,"Noto Sans Bengali",sans-serif;background:#f6f7fb;color:#18202a}
+header{background:#111827;color:#fff;padding:18px 16px;position:sticky;top:0;z-index:5}.wrap{max-width:1100px;margin:auto}
+.brand{font-size:27px;font-weight:800}.tag{font-size:13px;opacity:.8}
+.search{margin-top:14px;display:flex;gap:8px}.search input{flex:1;padding:13px;border:0;border-radius:10px;font-size:16px}.search button{border:0;border-radius:10px;padding:0 16px;font-size:18px}
+.hero{padding:25px 16px;background:white}.hero h1{margin:0 0 7px;font-size:30px}.hero p{margin:0;color:#5d6672}
+.notice{margin:16px;padding:13px;border-radius:12px;background:#fff7d6;border:1px solid #eadb91}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:14px;padding:16px}
+.card{background:#fff;border-radius:15px;padding:12px;box-shadow:0 2px 10px #00000010}.cover{height:220px;border-radius:10px;background:linear-gradient(145deg,#dbeafe,#e5e7eb);display:flex;align-items:center;justify-content:center;text-align:center;padding:18px;font-weight:800;font-size:20px}
+.meta{color:#667085;font-size:13px;margin-top:9px}.title{font-weight:750;font-size:17px;margin-top:6px}.price{font-size:19px;font-weight:800;margin:8px 0}.old{text-decoration:line-through;color:#89919b;font-size:13px;margin-left:6px;font-weight:500}
+.btn{width:100%;border:0;border-radius:10px;padding:11px;background:#111827;color:#fff;font-weight:700}
+.empty{text-align:center;padding:30px;color:#667085}.cart{position:fixed;right:14px;bottom:14px;border:0;border-radius:999px;padding:13px 17px;background:#111827;color:#fff;font-weight:800;box-shadow:0 5px 20px #0003}
+dialog{border:0;border-radius:18px;width:min(92vw,520px);padding:0;box-shadow:0 15px 60px #0005}dialog::backdrop{background:#0007}.modal{padding:20px}.modal h2{margin-top:0}.close{float:right;border:0;background:none;font-size:24px}
+input,textarea{width:100%;padding:11px;margin:6px 0 10px;border:1px solid #d0d5dd;border-radius:9px;font-size:15px}
+footer{text-align:center;color:#667085;padding:35px 16px}
+</style>
+</head>
+<body>
+<header><div class="wrap">
+<div class="brand">📚 MyBook</div><div class="tag">Bongaon-এর জন্য বই অর্ডার ও হোম ডেলিভারি</div>
+<div class="search"><input id="q" placeholder="বইয়ের নাম / লেখক খুঁজুন…"><button onclick="render()">🔎</button></div>
+</div></header>
+<section class="hero"><div class="wrap"><h1>College Street Book Collection</h1>
+<p>প্রতিটি sample বইয়ের বিক্রয়মূল্য base price-এর উপর স্বয়ংক্রিয়ভাবে ১০% যোগ করে দেখানো হচ্ছে।</p></div></section>
+<div class="notice">⚠️ College Street-এ হাজার হাজার নতুন, পুরনো ও academic বই আছে এবং stock/দাম দোকানভেদে বদলায়। তাই এখানে কোনো “সব বই” বা live stock-এর মিথ্যা দাবি করা হয়নি। Supplier/shop-এর title ও base-price list দিলে পুরো catalogue বসানো যাবে।</div>
+<main id="books" class="grid"></main>
+<button class="cart" onclick="openCart()">🛒 Cart (<span id="count">0</span>)</button>
+<dialog id="dlg"><div class="modal"><button class="close" onclick="dlg.close()">×</button>
+<h2>অর্ডার করুন</h2><div id="cartItems"></div><div><b>Total: ₹<span id="total">0</span></b></div><hr>
+<input id="name" placeholder="ক্রেতার নাম"><input id="phone" placeholder="মোবাইল নম্বর">
+<textarea id="address" rows="3" placeholder="Bongaon-এর সম্পূর্ণ ঠিকানা"></textarea>
+<button class="btn" onclick="placeOrder()">Cash on Delivery Order</button><p id="msg" class="meta"></p>
+</div></dialog>
+<footer>© 2026 MyBook · Bongaon delivery · Cash on Delivery</footer>
+<script>
+const books=[
+{id:1,title:"গীতাঞ্জলি",author:"রবীন্দ্রনাথ ঠাকুর",base:180,cat:"বাংলা সাহিত্য"},
+{id:2,title:"আনন্দমঠ",author:"বঙ্কিমচন্দ্র চট্টোপাধ্যায়",base:150,cat:"বাংলা সাহিত্য"},
+{id:3,title:"দেবদাস",author:"শরৎচন্দ্র চট্টোপাধ্যায়",base:140,cat:"বাংলা সাহিত্য"},
+{id:4,title:"শ্রীকান্ত",author:"শরৎচন্দ্র চট্টোপাধ্যায়",base:220,cat:"বাংলা সাহিত্য"},
+{id:5,title:"Pride and Prejudice",author:"Jane Austen",base:180,cat:"English"},
+{id:6,title:"The Great Gatsby",author:"F. Scott Fitzgerald",base:170,cat:"English"},
+{id:7,title:"Physics — Class 12",author:"Academic Textbook",base:420,cat:"Academic"},
+{id:8,title:"Chemistry — Class 12",author:"Academic Textbook",base:410,cat:"Academic"},
+{id:9,title:"Mathematics — Class 12",author:"Academic Textbook",base:390,cat:"Academic"},
+{id:10,title:"Biology — Class 12",author:"Academic Textbook",base:430,cat:"Academic"},
+{id:11,title:"WBCS General Studies Guide",author:"Competitive Exam Guide",base:520,cat:"Exam"},
+{id:12,title:"West Bengal GK",author:"Competitive Exam Guide",base:260,cat:"Exam"}];
+let cart=[];
+function sell(b){return Math.ceil(b.base*1.10)}
+function esc(s){return s.replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]))}
+function render(){const q=document.getElementById('q').value.trim().toLowerCase();const list=books.filter(b=>(b.title+" "+b.author+" "+b.cat).toLowerCase().includes(q));
+document.getElementById('books').innerHTML=list.length?list.map(b=>`<article class="card"><div class="cover">📖<br>${esc(b.title)}</div><div class="meta">${esc(b.cat)} · ${esc(b.author)}</div><div class="title">${esc(b.title)}</div><div class="price">₹${sell(b)} <span class="old">Base ₹${b.base}</span></div><button class="btn" onclick="add(${b.id})">Add to Cart</button></article>`).join(""):'<div class="empty">কোনো বই পাওয়া যায়নি।</div>'}
+function add(id){cart.push(id);updateCount()}function updateCount(){document.getElementById('count').textContent=cart.length}
+function openCart(){if(!cart.length){cartItems.innerHTML="<p>Cart খালি।</p>";total.textContent="0";dlg.showModal();return}let counts={};cart.forEach(id=>counts[id]=(counts[id]||0)+1);let t=0;
+cartItems.innerHTML=Object.entries(counts).map(([id,n])=>{let b=books.find(x=>x.id==id),x=sell(b)*n;t+=x;return `<p>${esc(b.title)} × ${n} — ₹${x}</p>`}).join("");total.textContent=t;dlg.showModal()}
+function placeOrder(){const name=document.getElementById('name').value.trim(),phone=document.getElementById('phone').value.trim(),address=document.getElementById('address').value.trim();
+if(!name||!phone||!address){msg.textContent="নাম, ফোন ও ঠিকানা দিন।";return}if(!/bongaon|বনগাঁ|bonga/i.test(address)){msg.textContent="শুধু Bongaon এলাকার ঠিকানা গ্রহণ করা হচ্ছে।";return}
+msg.textContent="Order submitted! Order ID: MB-"+Date.now()+" (demo mode)";cart=[];updateCount()}render();
+</script></body></html>
